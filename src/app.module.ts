@@ -1,9 +1,11 @@
-import { Module } from '@nestjs/common';
+import { Module, ValidationPipe } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { User } from './users/entities/user.entity';
+import { APP_PIPE } from '@nestjs/core';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -20,9 +22,9 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           database: configService.get<string>('DB_NAME'),
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
-          entities: [],
+          entities: [User],
           synchronize:
-            configService.get<string>('DB_PASSWORD') === 'development'
+            configService.get<string>('NODE_ENV') === 'development'
               ? true
               : false,
         };
@@ -31,6 +33,12 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
     UsersModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
+    },
+  ],
 })
 export class AppModule {}
