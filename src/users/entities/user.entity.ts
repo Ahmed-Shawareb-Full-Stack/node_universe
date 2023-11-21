@@ -3,10 +3,13 @@ import {
   BeforeInsert,
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
+
+import * as bcrypt from 'bcrypt';
 
 @Entity({
   name: 'Users',
@@ -32,6 +35,24 @@ export class User {
   email: string;
 
   @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isVerifiedEmail: boolean;
+
+  @Column({
+    type: 'varchar',
+    unique: true,
+  })
+  mobile: string;
+
+  @Column({
+    type: 'boolean',
+    default: false,
+  })
+  isVerifiedMobile: boolean;
+
+  @Column({
     type: 'text',
   })
   password: string;
@@ -46,9 +67,8 @@ export class User {
   })
   updatedAt: Date;
 
-  @AfterInsert()
-  logUser(): void {}
-
-  @BeforeInsert()
-  hashPassword(): void {}
+  @DeleteDateColumn({
+    type: 'timestamp',
+  })
+  deletedAt: Date;
 }

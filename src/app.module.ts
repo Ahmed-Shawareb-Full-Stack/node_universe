@@ -6,6 +6,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { User } from './users/entities/user.entity';
 import { APP_PIPE } from '@nestjs/core';
+import { UserVerification } from './users/entities/user-verification';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -22,7 +23,7 @@ import { APP_PIPE } from '@nestjs/core';
           database: configService.get<string>('DB_NAME'),
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
-          entities: [User],
+          entities: [User, UserVerification],
           synchronize:
             configService.get<string>('NODE_ENV') === 'development'
               ? true
