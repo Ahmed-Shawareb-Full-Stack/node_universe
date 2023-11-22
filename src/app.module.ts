@@ -31,6 +31,7 @@ import { UserVerification } from './users/entities/user-verification';
         };
       },
     }),
+    
     UsersModule,
   ],
   controllers: [AppController],
