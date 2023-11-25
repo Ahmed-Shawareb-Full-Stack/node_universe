@@ -1,4 +1,4 @@
-import { IsEmail, IsString, MinLength } from 'class-validator';
+import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
 import { hashPassword } from 'src/shared/libs/hash-password';
 
 export class RegisterDto {
@@ -14,8 +14,14 @@ export class RegisterDto {
 
   @IsEmail()
   @MinLength(3)
+  @IsOptional()
   // @Transform((value: unknown) => (value as string)?.trim())
   email: string;
+
+  @IsString()
+  @MinLength(13)
+  @IsOptional()
+  mobile: string;
 
   @IsString()
   @MinLength(6)

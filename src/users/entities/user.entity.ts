@@ -5,11 +5,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-
-import * as bcrypt from 'bcrypt';
+import { UserOperationsDetails } from './user-operations-details';
 
 @Entity({
   name: 'Users',
@@ -31,6 +31,7 @@ export class User {
   @Column({
     type: 'varchar',
     unique: true,
+    default: null,
   })
   email: string;
 
@@ -43,6 +44,7 @@ export class User {
   @Column({
     type: 'varchar',
     unique: true,
+    default: null,
   })
   mobile: string;
 
@@ -71,4 +73,8 @@ export class User {
     type: 'timestamp',
   })
   deletedAt: Date;
+
+
+  @OneToMany(()=>UserOperationsDetails, userOperationsDetails => userOperationsDetails.user)
+  userOperationsDetails : UserOperationsDetails[];
 }
