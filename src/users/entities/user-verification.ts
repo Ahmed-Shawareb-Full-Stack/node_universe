@@ -3,9 +3,11 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { VerificationCase, VerificationType } from '../types/verification';
+import { User } from './user.entity';
 
 @Entity({
   name: 'UserVerification',
@@ -15,30 +17,31 @@ export class UserVerification {
   id: string;
 
   @Column({
-    type: 'int',
+    type: 'varchar',
+    length: 6,
   })
-  code: number;
+  code: string;
+
+  @Column({
+    type: 'enum',
+    enum: VerificationCase,
+  })
+  verificationCase: VerificationCase;
+
+  @Column({
+    type: 'enum',
+    enum: VerificationType,
+  })
+  verificationType: VerificationType;
+
+  @CreateDateColumn()
+  createdAt: Date;
 
   @Column({
     type: 'uuid',
   })
   userId: string;
 
-  @Column({
-    type: 'enum',
-    enum: VerificationCase,
-    array: true,
-    nullable: false,
-  })
-  verificationCase: VerificationCase[];
-
-  @Column({
-    type: 'enum',
-    enum: VerificationType,
-    nullable: false,
-  })
-  verificationType: VerificationType;
-
-  @CreateDateColumn()
-  createdAt: Date;
+  @ManyToOne(() => User, (user) => user.userVerificationCodes)
+  user: User;
 }

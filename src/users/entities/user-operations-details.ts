@@ -44,7 +44,7 @@ export class UserOperationsDetails {
   deviceIP: string;
 
   @Column({
-    type: 'varchar',
+    type: 'text',
   })
   userAgent: string;
 
@@ -55,7 +55,7 @@ export class UserOperationsDetails {
   operation: Operations;
 
   @Column({
-    type: 'varchar',
+    type: 'text',
   })
   token: string;
 
@@ -75,6 +75,13 @@ export class UserOperationsDetails {
   })
   updatedAt: Date;
 
-  @ManyToOne(() => User, (user) => user.userOperationsDetails)
+  @Column({
+    type: 'uuid',
+  })
+  userId: string;
+
+  @ManyToOne(() => User, (user) => user.userOperationsDetails, {
+    onDelete: 'CASCADE',
+  })
   user: User;
 }

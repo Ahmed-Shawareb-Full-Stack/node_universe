@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
-import { RegisterDto } from './auth/dto/register.dto';
+import { RegisterDTO } from './auth/dto/register.dto';
 import { hashPassword } from 'src/shared/libs/hash-password';
 
 @Injectable()
@@ -12,7 +12,7 @@ export class UsersService {
     private userRepo: Repository<User>,
   ) {}
 
-  async createUser(data: RegisterDto) {
+  async createUser(data: RegisterDTO) {
     const { password } = data;
     const hashedPassword = await hashPassword(password);
     const userEntity = this.userRepo.create({
@@ -38,5 +38,6 @@ export class UsersService {
 
   async updateUser(data: Partial<User>) {
     const updatedUser = await this.userRepo.preload(data);
+    return await this.userRepo.save(updatedUser);
   }
 }

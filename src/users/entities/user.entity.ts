@@ -10,6 +10,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserOperationsDetails } from './user-operations-details';
+import { UserVerification } from './user-verification';
 
 @Entity({
   name: 'Users',
@@ -74,7 +75,15 @@ export class User {
   })
   deletedAt: Date;
 
+  @OneToMany(
+    () => UserOperationsDetails,
+    (userOperationsDetails) => userOperationsDetails.user,
+  )
+  userOperationsDetails: UserOperationsDetails[];
 
-  @OneToMany(()=>UserOperationsDetails, userOperationsDetails => userOperationsDetails.user)
-  userOperationsDetails : UserOperationsDetails[];
+  @OneToMany(
+    () => UserVerification,
+    (userVerification) => userVerification.user,
+  )
+  userVerificationCodes: UserVerification[];
 }

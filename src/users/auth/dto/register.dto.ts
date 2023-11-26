@@ -1,7 +1,14 @@
-import { IsEmail, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsEmail,
+  IsEnum,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { hashPassword } from 'src/shared/libs/hash-password';
+import { DeviceType } from 'src/users/entities/user-operations-details';
 
-export class RegisterDto {
+export class RegisterDTO {
   @IsString()
   @MinLength(3)
   // @Transform((value: unknown) => (value as string)?.trim())
@@ -27,4 +34,7 @@ export class RegisterDto {
   @MinLength(6)
   // @Transform((value: unknown) => (value as string)?.trim())
   password: string;
+
+  @IsEnum(DeviceType)
+  device: DeviceType;
 }

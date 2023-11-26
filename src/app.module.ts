@@ -62,20 +62,11 @@ import { JwtModule } from '@nestjs/jwt';
       imports: [ConfigModule],
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
-        console.log(
-          configService.get('PRIVATE_KEY'),
-          configService.get('PUBLIC_KEY'),
-        );
         return {
           global: true,
           privateKey: configService.get('PRIVATE_KEY'),
           publicKey: configService.get('PUBLIC_KEY'),
           secretOrPrivateKey: configService.get('PRIVATE_KEY'),
-          verifyOptions: {
-            algorithms: ['RS256'],
-            issuer: configService.get('ISSUER'),
-            audience: configService.get('AUDIENCE'),
-          },
           signOptions: {
             algorithm: 'RS256',
             expiresIn: configService.get('JWT_EXPIRES_IN'),

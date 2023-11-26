@@ -1,7 +1,7 @@
 import { IsString, IsUUID, MinLength } from 'class-validator';
 import { MatchPassword } from 'src/shared/decorators/match-password';
 
-export class ChangePasswordDto {
+export class ChangePasswordDTO {
   @IsUUID(4)
   id: string;
 
