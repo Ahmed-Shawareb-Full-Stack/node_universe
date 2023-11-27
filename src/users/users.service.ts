@@ -24,14 +24,12 @@ export class UsersService {
   }
 
   async findUser(data: Partial<User>) {
-    const { id, email, mobile } = data;
+    const { id, email } = data;
     const user = id
       ? await this.userRepo.findOneBy({ id })
       : email
         ? await this.userRepo.findOneBy({ email })
-        : mobile
-          ? await this.userRepo.findOneBy({ mobile })
-          : null;
+        : null;
 
     return user;
   }

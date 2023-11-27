@@ -1,4 +1,5 @@
 import { IsEnum, IsString, Length } from 'class-validator';
+import { DeviceType } from 'src/users/entities/user-tokens-details';
 import {
   VerificationCase,
   VerificationType,
@@ -14,4 +15,7 @@ export class VerifyUserDTO {
 
   @IsEnum(VerificationType)
   verificationType: VerificationType;
+
+  @IsEnum(DeviceType)
+  device: DeviceType;
 }

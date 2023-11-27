@@ -3,6 +3,6 @@ export enum VerificationCase {
   RESET_PASSWORD = 'RESET_PASSWORD',
 }
 export enum VerificationType {
-  MOBILE = 'MOBILE',
+  // MOBILE = 'MOBILE',
   EMAIL = 'EMAIL',
 }

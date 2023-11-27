@@ -7,13 +7,13 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { UserVerification } from './entities/user-verification';
 import { Mail } from 'src/shared/services/mail/mail';
-import { UserOperationsDetails } from './entities/user-operations-details';
+import { UserTokensDetails } from './entities/user-tokens-details';
 import { JwtModule, JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserVerification, UserOperationsDetails]),
+    TypeOrmModule.forFeature([User, UserVerification, UserTokensDetails]),
   ],
   providers: [UsersService, AuthService, Mail, JwtService, ConfigService],
   controllers: [UsersController, AuthController],

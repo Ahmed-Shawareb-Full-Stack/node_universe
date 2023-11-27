@@ -9,7 +9,7 @@ import {
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
-import { UserOperationsDetails } from './user-operations-details';
+import { UserTokensDetails } from './user-tokens-details';
 import { UserVerification } from './user-verification';
 
 @Entity({
@@ -42,18 +42,18 @@ export class User {
   })
   isVerifiedEmail: boolean;
 
-  @Column({
-    type: 'varchar',
-    unique: true,
-    default: null,
-  })
-  mobile: string;
+  // @Column({
+  //   type: 'varchar',
+  //   unique: true,
+  //   default: null,
+  // })
+  // mobile: string;
 
-  @Column({
-    type: 'boolean',
-    default: false,
-  })
-  isVerifiedMobile: boolean;
+  // @Column({
+  //   type: 'boolean',
+  //   default: false,
+  // })
+  // isVerifiedMobile: boolean;
 
   @Column({
     type: 'text',
@@ -76,10 +76,10 @@ export class User {
   deletedAt: Date;
 
   @OneToMany(
-    () => UserOperationsDetails,
-    (userOperationsDetails) => userOperationsDetails.user,
+    () => UserTokensDetails,
+    (UserTokensDetails) => UserTokensDetails.user,
   )
-  userOperationsDetails: UserOperationsDetails[];
+  UserTokensDetails: UserTokensDetails[];
 
   @OneToMany(
     () => UserVerification,

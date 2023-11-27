@@ -6,7 +6,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { hashPassword } from 'src/shared/libs/hash-password';
-import { DeviceType } from 'src/users/entities/user-operations-details';
+import { DeviceType } from 'src/users/entities/user-tokens-details';
 
 export class RegisterDTO {
   @IsString()

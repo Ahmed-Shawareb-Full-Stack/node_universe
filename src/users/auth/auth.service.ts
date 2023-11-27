@@ -3,6 +3,7 @@ import {
   ForbiddenException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { UsersService } from '../users.service';
 import { LoginDTO } from './dto/login.dto';
@@ -16,12 +17,13 @@ import {
   DeviceType,
   Operations,
   TokenType,
-  UserOperationsDetails,
-} from '../entities/user-operations-details';
+  UserTokensDetails,
+} from '../entities/user-tokens-details';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../entities/user.entity';
 import { ConfigService } from '@nestjs/config';
 import { Mail } from 'src/shared/services/mail/mail';
+import { matchedPassword } from 'src/shared/libs/compare-password';
 
 @Injectable()
 export class AuthService {
@@ -29,23 +31,38 @@ export class AuthService {
     private readonly usersService: UsersService,
     @InjectRepository(UserVerification)
     private readonly userVerifyRepo: Repository<UserVerification>,
-    @InjectRepository(UserOperationsDetails)
-    private readonly userOperationsRepo: Repository<UserOperationsDetails>,
+    @InjectRepository(UserTokensDetails)
+    private readonly userOperationsRepo: Repository<UserTokensDetails>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
     private readonly mailService: Mail,
   ) {}
 
-  async login(data: LoginDTO) {
+  async login(data: LoginDTO, operationHeaders) {
     const { email, password } = data;
-    console.log(data);
+    const user = await this.usersService.findUser({ email });
+    if (!user) {
+      throw new UnauthorizedException('email or password is incorrect');
+    }
+    const isPasswordCorrect = await matchedPassword(user.password, password);
+    if (!isPasswordCorrect) {
+      throw new UnauthorizedException('email or password is incorrect');
+    }
+    const userToken = await this.registerUserTokensDetails(
+      user,
+      operationHeaders,
+      Operations.LOGIN_IN,
+      TokenType.LOGIN,
+      data.device,
+    );
+    return userToken;
   }
 
-  async register(data: RegisterDTO, operationDetails) {
+  async register(data: RegisterDTO, operationHeaders) {
     const user = await this.usersService.createUser(data);
-    const operationResult = await this.registerUserOperationsDetails(
+    const operationResult = await this.registerUserTokensDetails(
       user,
-      operationDetails,
+      operationHeaders,
       Operations.REGISTER,
       TokenType.TEMP,
       data.device,
@@ -66,21 +83,31 @@ export class AuthService {
     token: string,
   ) {
     const jwtToken = token.split(' ')[1];
-    const tokenPayload = this.jwtService.decode(jwtToken);
+    const tokenPayload = await this.verifyToken(jwtToken);
     const userTokens = await this.userOperationsRepo.findBy({
       userId: tokenPayload.userId,
     });
+    const user = await this.usersService.findUser({ id: tokenPayload.userId });
     if (!userTokens && !userTokens.length) {
       throw new NotFoundException('user token not found');
     }
-    if (
-      (tokenPayload.email && verificationType === VerificationType.MOBILE) ||
-      (tokenPayload.mobile && verificationType === VerificationType.EMAIL)
-    ) {
-      throw new ForbiddenException(
-        'invalid verification case or verification type',
-      );
+    if (!user) {
+      throw new NotFoundException('user assigned to this token not found');
     }
+    if (
+      verificationCase === VerificationCase.REGISTER &&
+      user.isVerifiedEmail
+    ) {
+      throw new ForbiddenException('user is already verified');
+    }
+    // if (
+    //   (tokenPayload.email && verificationType === VerificationType.MOBILE) ||
+    //   (tokenPayload.mobile && verificationType === VerificationType.EMAIL)
+    // ) {
+    //   throw new ForbiddenException(
+    //     'invalid verification case or verification type',
+    //   );
+    // }
     if (
       verificationCase === VerificationCase.REGISTER &&
       (userTokens.length !== 1 || userTokens[0].operation !== 'REGISTER')
@@ -89,11 +116,9 @@ export class AuthService {
         'Some thing is wrong with the verification process',
       );
     }
-    if (tokenPayload.email) {
+
+    if (user.email) {
       const code = Math.floor(100000 + Math.random() * 900000).toFixed(0);
-      const user = await this.usersService.findUser({
-        email: tokenPayload.email,
-      });
       if (!user) {
         throw new NotFoundException('user not found');
       }
@@ -107,7 +132,7 @@ export class AuthService {
         userVerificationDataEntity,
       );
       await this.mailService.send({
-        to: tokenPayload.email,
+        to: user.email,
         html: `Your verification code is ${userVerificationData.code}`,
       });
     }
@@ -131,10 +156,10 @@ export class AuthService {
     headersData: string,
     verificationCase: VerificationCase,
     verificationType: VerificationType,
+    device: DeviceType,
   ) {
     const jwtToken = headersData['authorization'].split(' ')[1];
     const tokenPayload = await this.verifyToken(jwtToken);
-    console.log(tokenPayload);
     const userVerificationDetails = await this.userVerifyRepo.find({
       where: {
         userId: tokenPayload.userId,
@@ -143,7 +168,14 @@ export class AuthService {
         createdAt: 'DESC',
       },
     });
-    console.log(userVerificationDetails);
+    const user = await this.usersService.findUser({ id: tokenPayload.userId });
+
+    if (
+      user.isVerifiedEmail &&
+      verificationCase === VerificationCase.REGISTER
+    ) {
+      throw new ForbiddenException('user is already verified');
+    }
     if (!userVerificationDetails.length) {
       throw new NotFoundException('user verification details not found');
     }
@@ -179,47 +211,51 @@ export class AuthService {
           isVerifiedEmail: true,
         });
       }
-      if (verificationType === VerificationType.MOBILE) {
-        verifiedUser = await this.usersService.updateUser({
-          id: tokenPayload.userId,
-          isVerifiedMobile: true,
-        });
-      }
+      // if (verificationType === VerificationType.MOBILE) {
+      //   verifiedUser = await this.usersService.updateUser({
+      //     id: tokenPayload.userId,
+      //     isVerifiedMobile: true,
+      //   });
+      // }
     }
 
-    const userOperationDetails = await this.registerUserOperationsDetails(
+    const operation =
+      verificationCase === VerificationCase.REGISTER
+        ? Operations.REGISTER
+        : Operations.LOGIN_IN;
+
+    const userOperationDetails = await this.registerUserTokensDetails(
       verifiedUser,
       headersData,
-      Operations.REGISTER,
+      operation,
       TokenType.LOGIN,
-      DeviceType.DESKTOP,
+      device,
     );
     return userOperationDetails;
   }
 
-  private async registerUserOperationsDetails(
+  private async registerUserTokensDetails(
     userData: User,
     data,
     operation: Operations,
     tokenType: TokenType,
     device: DeviceType,
   ) {
-    let tokenPayload;
+    // let tokenPayload;
     const deviceIP = data['x-forwarded-for'];
     const userAgent = data['user-agent'];
 
-    if (userData.email) {
-      tokenPayload = {
-        userId: userData.id,
-        email: userData.email,
-      };
-    }
-    if (userData.mobile) {
-      tokenPayload = {
-        userId: userData.id,
-        mobile: userData.mobile,
-      };
-    }
+    const tokenPayload = {
+      userId: userData.id,
+    };
+    // if (userData.email) {
+    // }
+    // if (userData.mobile) {
+    //   tokenPayload = {
+    //     userId: userData.id,
+    //     mobile: userData.mobile,
+    //   };
+    // }
     const token = this.generateToken(tokenPayload);
     const operationsDetailsEntity = this.userOperationsRepo.create({
       device,
@@ -240,7 +276,6 @@ export class AuthService {
       expiresIn: this.configService.get('JWT_EXPIRES_IN'),
       issuer: this.configService.get('ISSUER'),
       audience: this.configService.get('AUDIENCE'),
-      mutatePayload: false,
     });
   }
 

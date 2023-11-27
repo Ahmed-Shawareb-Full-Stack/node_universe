@@ -2,9 +2,7 @@ import {
   Column,
   CreateDateColumn,
   Entity,
-  JoinColumn,
   ManyToOne,
-  OneToOne,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
@@ -26,9 +24,9 @@ export enum Operations {
 }
 
 @Entity({
-  name: 'UserOperationsDetails',
+  name: 'UserTokensDetails',
 })
-export class UserOperationsDetails {
+export class UserTokensDetails {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -80,7 +78,7 @@ export class UserOperationsDetails {
   })
   userId: string;
 
-  @ManyToOne(() => User, (user) => user.userOperationsDetails, {
+  @ManyToOne(() => User, (user) => user.UserTokensDetails, {
     onDelete: 'CASCADE',
   })
   user: User;

@@ -10,8 +10,10 @@ import { UserVerification } from './users/entities/user-verification';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { Mail } from './shared/services/mail/mail';
 import { MjmlAdapter } from '@nestjs-modules/mailer/dist/adapters/mjml.adapter';
-import { UserOperationsDetails } from './users/entities/user-operations-details';
+import { UserTokensDetails } from './users/entities/user-tokens-details';
 import { JwtModule } from '@nestjs/jwt';
+// import { TwilioModule } from 'nestjs-twilio';
+// import { MessageService } from './shared/services/message/message';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -28,7 +30,7 @@ import { JwtModule } from '@nestjs/jwt';
           database: configService.get<string>('DB_NAME'),
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
-          entities: [User, UserVerification, UserOperationsDetails],
+          entities: [User, UserVerification, UserTokensDetails],
           synchronize:
             configService.get<string>('NODE_ENV') === 'development'
               ? true
@@ -76,6 +78,15 @@ import { JwtModule } from '@nestjs/jwt';
         };
       },
     }),
+    // TwilioModule.forRootAsync({
+    //   isGlobal: true,
+    //   imports: [ConfigModule],
+    //   inject: [ConfigService],
+    //   useFactory: (configService: ConfigService) => ({
+    //     accountSid: configService.get('ACCOUNT_SID'),
+    //     authToken: configService.get('AUTH_TOKEN'),
+    //   }),
+    // }),
     UsersModule,
   ],
   controllers: [AppController],
@@ -86,6 +97,7 @@ import { JwtModule } from '@nestjs/jwt';
       useClass: ValidationPipe,
     },
     Mail,
+    // MessageService,
   ],
 })
 export class AppModule {}

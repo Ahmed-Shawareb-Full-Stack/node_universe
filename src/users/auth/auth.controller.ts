@@ -11,8 +11,8 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('login')
-  login(@Body() data: LoginDTO) {
-    return this.authService.login(data);
+  login(@Body() data: LoginDTO, @Headers() headers) {
+    return this.authService.login(data, headers);
   }
 
   @Post('send-user-verification')
@@ -39,6 +39,7 @@ export class AuthController {
       headers,
       data.verificationCase,
       data.verificationType,
+      data.device,
     );
   }
 
