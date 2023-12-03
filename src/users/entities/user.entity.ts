@@ -34,7 +34,6 @@ export class User {
   @Column({
     type: 'varchar',
     unique: true,
-    default: null,
   })
   email: string;
 
@@ -92,6 +91,7 @@ export class User {
   @Column({
     type: 'uuid',
     nullable: true,
+    default: null,
   })
   roleId: string;
 

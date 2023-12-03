@@ -31,9 +31,6 @@ export class Role {
   })
   description: string;
 
-  @OneToMany(() => User, (user) => user.role)
-  users: User[];
-
   @CreateDateColumn({
     type: 'timestamp',
   })
@@ -43,4 +40,7 @@ export class Role {
     type: 'timestamp',
   })
   updatedAt: Date;
+
+  @OneToMany(() => User, (user) => user.role)
+  users: User[];
 }
