@@ -12,6 +12,7 @@ import { Mail } from './shared/services/mail/mail';
 import { MjmlAdapter } from '@nestjs-modules/mailer/dist/adapters/mjml.adapter';
 import { UserTokensDetails } from './users/entities/user-tokens-details';
 import { JwtModule } from '@nestjs/jwt';
+import { Role } from './users/entities/role.entity';
 // import { TwilioModule } from 'nestjs-twilio';
 // import { MessageService } from './shared/services/message/message';
 @Module({
@@ -30,7 +31,7 @@ import { JwtModule } from '@nestjs/jwt';
           database: configService.get<string>('DB_NAME'),
           username: configService.get<string>('DB_USERNAME'),
           password: configService.get<string>('DB_PASSWORD'),
-          entities: [User, UserVerification, UserTokensDetails],
+          entities: [User, UserVerification, UserTokensDetails, Role],
           synchronize:
             configService.get<string>('NODE_ENV') === 'development'
               ? true

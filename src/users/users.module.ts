@@ -8,14 +8,24 @@ import { User } from './entities/user.entity';
 import { UserVerification } from './entities/user-verification';
 import { Mail } from 'src/shared/services/mail/mail';
 import { UserTokensDetails } from './entities/user-tokens-details';
-import { JwtModule, JwtService } from '@nestjs/jwt';
+import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { RolesController } from './roles/roles.controller';
+import { RolesService } from './roles/roles.service';
+import { Role } from './entities/role.entity';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User, UserVerification, UserTokensDetails]),
+    TypeOrmModule.forFeature([User, UserVerification, UserTokensDetails, Role]),
   ],
-  providers: [UsersService, AuthService, Mail, JwtService, ConfigService],
-  controllers: [UsersController, AuthController],
+  providers: [
+    UsersService,
+    AuthService,
+    Mail,
+    JwtService,
+    ConfigService,
+    RolesService,
+  ],
+  controllers: [UsersController, AuthController, RolesController],
 })
 export class UsersModule {}

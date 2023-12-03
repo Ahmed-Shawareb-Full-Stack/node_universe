@@ -280,10 +280,14 @@ export class AuthService {
   }
 
   async verifyToken(token: string) {
-    const res = await this.jwtService.verify(token, {
-      algorithms: ['RS256'],
-      publicKey: this.configService.get('PUBLIC_KEY'),
-    });
-    return res;
+    try {
+      const res = await this.jwtService.verify(token, {
+        algorithms: ['RS256'],
+        publicKey: this.configService.get('PUBLIC_KEY'),
+      });
+      return res;
+    } catch (error) {
+      throw new UnauthorizedException('invalid token');
+    }
   }
 }

@@ -5,12 +5,14 @@ import {
   CreateDateColumn,
   DeleteDateColumn,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
   UpdateDateColumn,
 } from 'typeorm';
 import { UserTokensDetails } from './user-tokens-details';
 import { UserVerification } from './user-verification';
+import { Role } from './role.entity';
 
 @Entity({
   name: 'Users',
@@ -86,4 +88,13 @@ export class User {
     (userVerification) => userVerification.user,
   )
   userVerificationCodes: UserVerification[];
+
+  @Column({
+    type: 'uuid',
+    nullable: true,
+  })
+  roleId: string;
+
+  @ManyToOne(() => Role, (role) => role.users)
+  role: Role;
 }
